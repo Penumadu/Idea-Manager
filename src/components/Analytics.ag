@@ -1,0 +1,69 @@
+export const Analytics = (ideas) => {
+  const total = ideas.length;
+  if (total === 0) return '';
+
+  const techCount = {};
+  const categoryCount = {};
+  let withPlans = 0;
+
+  ideas.forEach(idea => {
+    // Tech stack (normalized)
+    (idea.tech_stack || []).forEach(tech => {
+      const t = tech.trim().toLowerCase();
+      // Capitalize first letter for display
+      const display = t.charAt(0).toUpperCase() + t.slice(1);
+      if(t) techCount[display] = (techCount[display] || 0) + 1;
+    });
+
+    // Categories
+    const cat = idea.category || 'General';
+    categoryCount[cat] = (categoryCount[cat] || 0) + 1;
+
+    // Plans
+    if (idea.development_plan && idea.development_plan.phases && idea.development_plan.phases.length > 0) {
+      withPlans++;
+    }
+  });
+
+  const topTech = Object.entries(techCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  const topCats = Object.entries(categoryCount)
+    .sort((a, b) => b[1] - a[1]);
+
+  return `
+    <div class="analytics-bar elevated-card animate-fade-in">
+      <div class="stat-item" style="text-align: center; min-width: 120px; border-right: 1px solid var(--border-color); padding-right: 1.5rem;">
+        <div class="stat-value">${total}</div>
+        <div class="stat-label">Total Ideas</div>
+      </div>
+      
+      <div class="stat-item" style="text-align: center; min-width: 120px; border-right: 1px solid var(--border-color); padding-right: 1.5rem;">
+        <div class="stat-value" style="background: linear-gradient(135deg, #10b981, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${withPlans}</div>
+        <div class="stat-label">With Plans</div>
+      </div>
+
+      <div class="stat-item" style="flex: 1; padding-left: 0.5rem;">
+        <div class="stat-label" style="margin-bottom: 0.75rem;">Top Categories</div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          ${topCats.map(([cat, count]) => `
+            <span class="category-tag cat-${cat.toLowerCase().replace(/[^a-z0-9]/g, '')}">
+              ${cat} <span style="opacity:0.7; margin-left:4px;">(${count})</span>
+            </span>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="stat-item" style="flex: 1.5;">
+        <div class="stat-label" style="margin-bottom: 0.75rem;">Top Technologies</div>
+        <div class="top-tech-list" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          ${topTech.length > 0 
+            ? topTech.map(([tech, count]) => `<span class="tech-chip">${tech} <span style="opacity:0.7">(${count})</span></span>`).join('') 
+            : '<span style="color: var(--text-secondary); font-size: 0.875rem;">None specified yet</span>'
+          }
+        </div>
+      </div>
+    </div>
+  `;
+};

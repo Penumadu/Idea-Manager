@@ -1,0 +1,52 @@
+export const PlanEditor = (idea) => {
+  const plan = idea.development_plan || { phases: [], benefits: '', complexity: 'Medium' };
+  
+  return `
+    <div class="modal-overlay" id="plan-editor-modal">
+      <div class="glass-card modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+          <h2 style="font-size: 1.5rem; color: #fff;">Refine Blueprint: <span style="color: var(--accent-color);">${idea.title}</span></h2>
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div class="save-status" id="save-status">✓ All changes saved</div>
+            <button class="btn-close" onclick="app.closePlanEditor('${idea.id}')">×</button>
+          </div>
+        </div>
+        
+        <div class="editor-layout" style="margin-top: 1.5rem;">
+          <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem;">
+            <div class="form-group">
+              <label>Complexity</label>
+              <select id="plan-complexity" onchange="app.autoSavePlan('${idea.id}')">
+                <option value="Low" ${plan.complexity === 'Low' ? 'selected' : ''}>Low (1-2 weeks)</option>
+                <option value="Medium" ${plan.complexity === 'Medium' ? 'selected' : ''}>Medium (1-3 months)</option>
+                <option value="High" ${plan.complexity === 'High' ? 'selected' : ''}>High (3+ months)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Key Benefits</label>
+              <textarea id="plan-benefits" rows="3" placeholder="What value does this bring?" oninput="app.autoSavePlan('${idea.id}')">${plan.benefits || ''}</textarea>
+            </div>
+          </div>
+
+          <div class="phases-editor">
+            <h3 style="color: #fff; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Development Phases</h3>
+            <div id="phases-container">
+              ${plan.phases.map((phase, i) => `
+                <div class="phase-edit-item" data-index="${i}">
+                  <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+                    <div class="phase-number" style="width: 30px; height: 30px; font-size: 1rem;">${i + 1}</div>
+                    <input type="text" class="phase-title" value="${phase.title}" placeholder="Phase Title (e.g., MVP)" oninput="app.autoSavePlan('${idea.id}')">
+                  </div>
+                  <textarea class="phase-tasks" placeholder="Tasks (one per line)" oninput="app.autoSavePlan('${idea.id}')">${phase.tasks.join('\n')}</textarea>
+                  <button class="icon-btn delete-btn" onclick="app.removePhase('${idea.id}', ${i})" title="Delete Phase">🗑</button>
+                </div>
+              `).join('')}
+            </div>
+            <button class="btn btn-secondary" style="width: 100%; margin-top: 1rem; border-style: dashed;" onclick="app.addPhase('${idea.id}')">+ Add Phase</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+};

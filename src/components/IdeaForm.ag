@@ -1,0 +1,58 @@
+export const IdeaForm = (initialData = {}) => {
+  const isEdit = !!initialData.id;
+  const categories = ['SaaS', 'E-commerce', 'Tooling', 'AI/ML', 'Mobile', 'Web', 'General'];
+  
+  return `
+    <div class="modal-overlay" id="idea-form-modal">
+      <div class="glass-card modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h2>${isEdit ? 'Refine Idea' : 'Capture New Concept'}</h2>
+          <button type="button" class="btn-close" onclick="app.closeModal()">×</button>
+        </div>
+        <form id="idea-entry-form" onsubmit="app.handleFormSubmit(event)">
+          <input type="hidden" name="id" value="${initialData.id || ''}">
+          
+          <div class="form-group">
+            <label>Title</label>
+            <input type="text" name="title" placeholder="What's the project name?" required value="${initialData.title || ''}">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label>Category</label>
+              <select name="category" required>
+                ${categories.map(cat => `<option value="${cat}" ${initialData.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Status</label>
+              <select name="status">
+                <option value="Idea">Idea</option>
+                <option value="Researching">Researching</option>
+                <option value="Planning">Planning</option>
+                <option value="In Progress">In Progress</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Description (Markdown supported)</label>
+            <textarea name="description" rows="5" placeholder="Describe the problem and your solution..." required oninput="this.nextElementSibling.innerText = this.value.length + '/1000 characters'">${initialData.description || ''}</textarea>
+            <div class="char-counter">${(initialData.description || '').length}/1000 characters</div>
+          </div>
+
+          <div class="form-group">
+            <label>Tech Stack (Comma separated)</label>
+            <input type="text" name="tech_stack" placeholder="React, Firebase, Python..." value="${(initialData.tech_stack || []).join(', ')}">
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn" onclick="app.closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">${isEdit ? 'Save Changes' : 'Launch Idea'}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+};

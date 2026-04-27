@@ -1,0 +1,59 @@
+import { IdeaCard } from './IdeaCard.ag';
+import { Analytics } from './Analytics.ag';
+
+export const IdeaDashboard = (state) => {
+  if (state.loading) return `
+    <div class="dashboard-header"><h1>Loading Ideas...</h1></div>
+    <div class="grid-dashboard">
+      <div class="glass-card skeleton" style="height: 250px;"></div>
+      <div class="glass-card skeleton" style="height: 250px;"></div>
+      <div class="glass-card skeleton" style="height: 250px;"></div>
+    </div>
+  `;
+  
+  if (state.error) return `<div class="empty-state" style="border-color: #ef4444;"><p style="color: #ef4444;">Error: ${state.error}</p></div>`;
+  
+  if (state.ideas.length === 0 && !window.appState.searchQuery) return `
+    <div class="dashboard-header">
+      <h1>My Ideas</h1>
+    </div>
+    <div class="empty-state animate-fade-in">
+      <div style="font-size: 4rem; margin-bottom: 1rem;">🚀</div>
+      <h2 style="color: #fff; margin-bottom: 0.5rem;">No ideas captured yet.</h2>
+      <p>Start documenting your next big project and build your knowledge base.</p>
+      <button class="btn btn-primary" style="margin-top: 1rem;" onclick="app.showNewIdeaForm()">Create First Idea</button>
+    </div>
+  `;
+
+  const categories = ['All', 'SaaS', 'E-commerce', 'Tooling', 'AI/ML', 'Mobile', 'Web'];
+
+  return `
+    <div class="dashboard-header">
+      <h1>My Ideas</h1>
+      <div class="header-actions">
+        <input type="text" id="search-ideas" class="form-control" placeholder="Search ideas, tech, category..." 
+               value="${window.appState.searchQuery || ''}" 
+               oninput="app.filterIdeas(this.value)">
+               
+        <select class="sort-select" onchange="app.filterByCategory(this.value)">
+          ${categories.map(cat => `<option value="${cat}" ${window.appState.filterCategory === cat ? 'selected' : ''}>${cat}</option>`).join('')}
+        </select>
+               
+        <select class="sort-select" onchange="app.sortIdeas(this.value)">
+          <option value="date_desc" ${window.appState.sortBy === 'date_desc' ? 'selected' : ''}>Newest First</option>
+          <option value="date_asc" ${window.appState.sortBy === 'date_asc' ? 'selected' : ''}>Oldest First</option>
+          <option value="name_asc" ${window.appState.sortBy === 'name_asc' ? 'selected' : ''}>Name (A-Z)</option>
+          <option value="name_desc" ${window.appState.sortBy === 'name_desc' ? 'selected' : ''}>Name (Z-A)</option>
+        </select>
+
+        <button class="btn btn-primary" onclick="app.showNewIdeaForm()">+ New Idea</button>
+      </div>
+    </div>
+    
+    ${Analytics(state.ideas)}
+    
+    <div class="grid-dashboard" id="ideas-grid">
+      <!-- Grid populated by JS applySortAndFilter -->
+    </div>
+  `;
+};

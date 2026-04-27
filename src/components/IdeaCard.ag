@@ -1,0 +1,58 @@
+export const IdeaCard = (idea, currentUser) => {
+  const techStack = idea.tech_stack || [];
+  const category = idea.category || 'General';
+  const catClass = `cat-${category.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+  
+  const canDelete = currentUser && currentUser.email === 'penumadu@gmail.com';
+  
+  // Format date
+  const dateObj = idea.metadata?.created_at ? new Date(idea.metadata.created_at) : new Date();
+  const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+  // Progress logic
+  let progressStr = '';
+  if (idea.development_plan && idea.development_plan.phases && idea.development_plan.phases.length > 0) {
+    const total = idea.development_plan.phases.length;
+    // Just a visual representation for now, assuming 1 phase done if > 2 phases, else 0
+    // Real progress would track completed tasks
+    const completed = total > 2 ? 1 : 0; 
+    const percent = Math.max(10, Math.round((completed / total) * 100));
+    
+    progressStr = `
+      <div class="progress-indicator" title="Phases defined">
+        <span>Plan: ${total} phases</span>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width: ${percent}%"></div>
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="glass-card idea-card ${catClass}" data-id="${idea.id}">
+      <div class="card-header">
+        <span class="category-tag">${category}</span>
+        <div class="card-actions">
+           <button class="icon-btn edit-btn" onclick="app.editIdea('${idea.id}')" title="Edit">✎</button>
+           ${canDelete ? `<button class="icon-btn delete-btn" onclick="app.deleteIdea('${idea.id}')" title="Delete">🗑</button>` : ''}
+        </div>
+      </div>
+      
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 class="idea-title">${idea.title}</h3>
+      </div>
+      <div class="idea-date" style="margin-top: -0.5rem; margin-bottom: 0.75rem;">Added ${dateStr}</div>
+      
+      <p class="idea-description">${idea.description.substring(0, 120)}${idea.description.length > 120 ? '...' : ''}</p>
+      
+      <div class="tech-stack">
+        ${techStack.map(tech => `<span class="tech-chip">${tech}</span>`).join('')}
+      </div>
+      
+      <div class="card-footer">
+        ${progressStr}
+        <button class="btn btn-secondary view-blueprint" style="margin-left: auto;" onclick="app.viewBlueprint('${idea.id}')">View Blueprint →</button>
+      </div>
+    </div>
+  `;
+};

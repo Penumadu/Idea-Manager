@@ -1,0 +1,20 @@
+{
+  "name": "idea-manager",
+  "version": "1.0.0",
+  "description": "A specialized platform for web developers to document, refine, and organize project ideas.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "firebase": "^12.12.1",
+    "lucide-static": "^1.11.0",
+    "marked": "^18.0.2",
+    "vite": "^8.0.10"
+  }
+}

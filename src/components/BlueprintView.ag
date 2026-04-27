@@ -1,0 +1,97 @@
+import { marked } from 'marked';
+
+export const BlueprintView = (idea) => {
+  const plan = idea.development_plan || { phases: [], benefits: '', complexity: 'Medium' };
+  const techStack = idea.tech_stack || [];
+  
+  const totalPhases = plan.phases.length;
+  // Visual representation
+  const completed = totalPhases > 2 ? 1 : 0; 
+  const percent = totalPhases > 0 ? Math.max(10, Math.round((completed / totalPhases) * 100)) : 0;
+  
+  return `
+    <div class="blueprint-container animate-fade-in">
+      <div class="blueprint-header">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <button class="icon-btn" onclick="app.showDashboard()" style="background: rgba(255,255,255,0.1); width: 40px; height: 40px; border-radius: 50%;">←</button>
+          <div style="color: var(--text-secondary); font-size: 0.9rem;">
+            <span style="cursor:pointer;" onclick="app.showDashboard()">Dashboard</span> / <span style="color: #fff;">${idea.title}</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-secondary" onclick="app.editIdea('${idea.id}')">Edit Idea</button>
+          <button class="btn btn-danger" onclick="app.deleteIdea('${idea.id}')">Delete</button>
+        </div>
+      </div>
+
+      <div class="blueprint-grid">
+        <aside class="blueprint-sidebar">
+          <div class="glass-card info-card">
+            <h3>Technical Specs</h3>
+            <div class="spec-item">
+              <label>Category</label>
+              <span class="category-tag cat-${idea.category.toLowerCase().replace(/[^a-z0-9]/g, '')}">${idea.category}</span>
+            </div>
+            <div class="spec-item">
+              <label>Complexity</label>
+              <span class="complexity-${plan.complexity.toLowerCase()}">${plan.complexity}</span>
+            </div>
+            <div class="spec-item">
+              <label>Tech Stack</label>
+              <div class="tech-stack" style="margin-bottom: 0;">
+                ${techStack.map(tech => `<span class="tech-chip">${tech}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card benefits-card">
+            <h3>Key Benefits</h3>
+            <p style="color: var(--text-secondary); white-space: pre-wrap;">${plan.benefits || 'No benefits defined yet. Refine the plan to add them.'}</p>
+          </div>
+        </aside>
+
+        <section class="blueprint-main">
+          <div class="glass-card">
+            <h1 style="font-size: 2.5rem; margin-bottom: 1.5rem; background: linear-gradient(135deg, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${idea.title}</h1>
+            <div class="markdown-body">
+              ${marked.parse(idea.description)}
+            </div>
+          </div>
+
+          <div class="glass-card plan-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.75rem;">
+              <h3 style="margin-bottom: 0; border: none; padding: 0;">Development Phases</h3>
+              ${totalPhases > 0 ? `
+                <div class="progress-indicator" style="font-size: 0.85rem;">
+                  <span>${percent}% Planned</span>
+                  <div class="progress-bar-bg" style="width: 100px;">
+                    <div class="progress-bar-fill" style="width: ${percent}%;"></div>
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+            
+            <div class="phases-list">
+              ${(plan.phases.length > 0) ? plan.phases.map((phase, index) => `
+                <div class="phase-item">
+                  <div class="phase-number">${index + 1}</div>
+                  <div class="phase-content">
+                    <h4 style="color: #fff;">${phase.title}</h4>
+                    <ul>
+                      ${phase.tasks.map(task => `<li>${task}</li>`).join('')}
+                    </ul>
+                  </div>
+                </div>
+              `).join('') : `
+                <div class="empty-state" style="padding: 2rem;">
+                  <p style="margin-bottom: 0;">No phases defined. Add some tasks to start your blueprint.</p>
+                </div>
+              `}
+            </div>
+            <button class="btn btn-primary" style="margin-top: 1rem; width: 100%;" onclick="app.editPlan('${idea.id}')">Refine Plan / Add Phases</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  `;
+};
